@@ -326,14 +326,14 @@
 #endif // #if defined(LUA_USE_READLINE)
 
 #else // #if defined(LUA_CROSS_COMPILER)
-
+#if 0
 #include "linenoise.h"
 #define lua_readline(L,b,p)	((void)L, (linenoise_getline(LINENOISE_ID_LUA,b,LUA_MAXINPUT,p)) != -1)
 #define lua_saveline(L,idx) \
 	if (lua_strlen(L,idx) > 0)  /* non-empty line? */ \
 	  linenoise_addhistory(LINENOISE_ID_LUA, lua_tostring(L, idx));  /* add it to history */
 #define lua_freeline(L,b)	{ (void)L; (void)b; }
-
+#endif
 #endif // #if defined(LUA_CROSS_COMPILER)
 
 #endif
@@ -873,8 +873,8 @@ union luai_Cast { double l_d; long l_l; };
 */
 
 #if !defined(LUA_CROSS_COMPILER)
-typedef short int16_t;
-typedef long int32_t;
+/*typedef short int16_t;
+typedef long int32_t;*/
 #endif
 
 /* If you define the next macro you'll get the ability to set rotables as

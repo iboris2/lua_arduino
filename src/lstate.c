@@ -23,13 +23,14 @@
 #include "ltable.h"
 #include "ltm.h"
 // BogdanM: modified for Lua interrupt support
+#define LUA_CROSS_COMPILER
 #ifndef LUA_CROSS_COMPILER
 #include "platform_conf.h"
 #include "elua_int.h"
 #include "platform.h"
 #endif
 // BogdanM: linenoise clenaup
-#include "linenoise.h"
+//#include "linenoise.h"
 
 #define state_size(x)	(sizeof(x) + LUAI_EXTRASPACE)
 #define fromstate(l)	(cast(lu_byte *, (l)) - LUAI_EXTRASPACE)

@@ -31,7 +31,7 @@
 #include "lstate.h"
 #include "legc.h"
 #ifndef LUA_CROSS_COMPILER
-#include "devman.h"
+//#include "devman.h"
 #endif
 
 #define FREELIST_REF	0	/* free list of references */

@@ -21,7 +21,7 @@
 #include "lrotable.h"
 
 #ifndef LUA_CROSS_COMPILER
-#include "platform_conf.h"
+/*#include "platform_conf.h"*/
 #endif
 
 /*
