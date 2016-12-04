@@ -6,11 +6,11 @@
 
 
 // #include "c_signal.h"
-#include "c_stdio.h"
-#include "c_stdlib.h"
-#include "c_string.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "user_interface.h"
-#include "user_version.h"
+#include "platform/user_version.h"
 #include "driver/readline.h"
 #include "driver/uart.h"
 

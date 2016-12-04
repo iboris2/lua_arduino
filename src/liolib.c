@@ -5,11 +5,10 @@
 */
 
 
-// #include "c_errno.h"
-#include "c_stdio.h"
-#include "c_stdlib.h"
-#include "c_string.h"
-#include "vfs.h"
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define liolib_c
 #define LUA_LIB
@@ -19,7 +18,7 @@
 #include "lauxlib.h"
 #include "lualib.h"
 #include "lrotable.h"
-
+#include "platform/vfs.h"
 
 #define IO_INPUT	1
 #define IO_OUTPUT	2

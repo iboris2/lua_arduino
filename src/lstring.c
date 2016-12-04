@@ -5,13 +5,13 @@
 */
 
 
+#include <string.h>
 
 #define lstring_c
 #define LUA_CORE
 #define LUAC_CROSS_FILE
 
 #include "lua.h"
-#include C_HEADER_STRING
 
 #include "lmem.h"
 #include "lobject.h"

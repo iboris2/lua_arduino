@@ -6,14 +6,16 @@
 
 
 
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #define lbaselib_c
 #define LUA_LIB
 #define LUAC_CROSS_FILE
 
 #include "lua.h"
-#include C_HEADER_STDIO
-#include C_HEADER_STRING
-#include C_HEADER_STDLIB
 #include "lauxlib.h"
 #include "lualib.h"
 #include "lrotable.h"

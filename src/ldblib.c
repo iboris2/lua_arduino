@@ -5,19 +5,20 @@
 */
 
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #define ldblib_c
 #define LUA_LIB
 #define LUAC_CROSS_FILE
 
 #include "lua.h"
-#include C_HEADER_STDIO
-#include C_HEADER_STDLIB
-#include C_HEADER_STRING
 
 #include "lauxlib.h"
 #include "lualib.h"
 #include "lrotable.h"
-#include "user_modules.h"
+#include "platform/user_modules.h"
 
 
 

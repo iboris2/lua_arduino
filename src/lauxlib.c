@@ -4,18 +4,14 @@
 ** See Copyright Notice in lua.h
 */
 
-#define LUAC_CROSS_FILE
 
-#include "lua.h"
-#include C_HEADER_CTYPE
-#include C_HEADER_ERRNO
-#include C_HEADER_STDIO
-#include C_HEADER_STDLIB
-#include C_HEADER_STRING
-#ifndef LUA_CROSS_COMPILER
-#include "vfs.h"
-#else
-#endif
+#include <ctype.h>
+#include <errno.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 
 /* This file uses only the official API of Lua.
 ** Any function declared here could be written as an application function.
@@ -23,6 +19,8 @@
 
 #define lauxlib_c
 #define LUA_LIB
+
+#include "lua.h"
 
 #include "lrotable.h"
 
@@ -649,7 +647,8 @@ LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
 
 #else
 
-#include C_HEADER_FCNTL
+#include <fcntl.h>
+#include <platform/vfs_int.h>
 
 typedef struct LoadFSF {
   int extraline;

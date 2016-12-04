@@ -1,9 +1,9 @@
 /* Read-only tables for Lua */
 #define LUAC_CROSS_FILE
 
-#include "lua.h"
-#include C_HEADER_STRING
+#include <string.h>
 #include "lrotable.h"
+#include "lua.h"
 #include "lauxlib.h"
 #include "lstring.h"
 #include "lobject.h"

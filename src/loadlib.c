@@ -9,17 +9,18 @@
 */
 
 
+#include <stdlib.h>
+#include <string.h>
+
+
 #define loadlib_c
 #define LUA_LIB
 #define LUAC_CROSS_FILE
 
 #include "lua.h"
-#include C_HEADER_STDLIB
-#include C_HEADER_STRING
-#include C_HEADER_FCNTL
 
 #ifndef LUA_CROSS_COMPILER
-#include "vfs.h"
+#include "platform/vfs.h"
 #endif
 
 #include "lauxlib.h"

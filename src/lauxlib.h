@@ -9,13 +9,10 @@
 #define lauxlib_h
 
 
-#include "lua.h"
-
-#ifdef LUA_CROSS_COMPILER
+#include <stddef.h>
 #include <stdio.h>
-#else
-#include "c_stdio.h"
-#endif
+
+#include "lua.h"
 
 
 #if defined(LUA_COMPAT_GETN)

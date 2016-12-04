@@ -5,13 +5,17 @@
 */
 
 
+#include <ctype.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #define lstrlib_c
 #define LUA_LIB
 #define LUAC_CROSS_FILE
 
 #include "lua.h"
-#include C_HEADER_STDIO
-#include C_HEADER_STRING
 
 #include "lauxlib.h"
 #include "lualib.h"

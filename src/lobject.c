@@ -4,15 +4,17 @@
 ** See Copyright Notice in lua.h
 */
 
+#include <ctype.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define lobject_c
 #define LUA_CORE
 #define LUAC_CROSS_FILE
 
 #include "lua.h"
-#include C_HEADER_STDIO
-#include C_HEADER_STRING
-#include C_HEADER_STDLIB
 
 #include "ldo.h"
 #include "lmem.h"
@@ -21,7 +23,7 @@
 #include "lstring.h"
 #include "lvm.h"
 #ifndef LUA_CROSS_COMPILER
-#include "flash_api.h"
+#include "platform/flash_api.h"
 #else
 #include <limits.h>
 #endif

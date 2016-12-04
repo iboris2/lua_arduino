@@ -5,12 +5,16 @@
 */
 
 
+#include <stdarg.h>
+#include <stddef.h>
+#include <string.h>
+
+
 #define ldebug_c
 #define LUA_CORE
 #define LUAC_CROSS_FILE
 
 #include "lua.h"
-#include C_HEADER_STRING
 
 #include "lapi.h"
 #include "lcode.h"

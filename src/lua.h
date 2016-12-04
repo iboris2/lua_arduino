@@ -16,8 +16,8 @@
 #include <stddef.h>
 #include <ctype.h>
 #else
-#include "c_stdarg.h"
-#include "c_stddef.h"
+#include "stdarg.h"
+#include "stddef.h"
 #include "c_types.h"
 #include <ctype.h>
 #endif
