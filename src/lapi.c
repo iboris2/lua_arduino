@@ -4,17 +4,15 @@
 ** See Copyright Notice in lua.h
 */
 
-
-#include <assert.h>
-#include <math.h>
-#include <stdarg.h>
-#include <string.h>
-
 #define lapi_c
 #define LUA_CORE
+#define LUAC_CROSS_FILE
 
 #include "lua.h"
 
+//#include C_HEADER_ASSERT
+#include C_HEADER_MATH
+#include C_HEADER_STRING
 #include "lapi.h"
 #include "ldebug.h"
 #include "ldo.h"
@@ -30,12 +28,12 @@
 #include "lvm.h"
 #include "lrotable.h"
 
-
+#if 0
 const char lua_ident[] =
   "$Lua: " LUA_RELEASE " " LUA_COPYRIGHT " $\n"
   "$Authors: " LUA_AUTHORS " $\n"
   "$URL: www.lua.org $\n";
-
+#endif
 
 
 #define api_checknelems(L, n)	api_check(L, (n) <= (L->top - L->base))
@@ -473,7 +471,7 @@ LUA_API void lua_pushstring (lua_State *L, const char *s) {
   if (s == NULL)
     lua_pushnil(L);
   else
-    lua_pushlstring(L, s, strlen(s));
+    lua_pushlstring(L, s, c_strlen(s));
 }
 
 

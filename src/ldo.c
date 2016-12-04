@@ -4,15 +4,14 @@
 ** See Copyright Notice in lua.h
 */
 
-
 #include <setjmp.h>
-#include <stdlib.h>
-#include <string.h>
 
 #define ldo_c
 #define LUA_CORE
+#define LUAC_CROSS_FILE
 
 #include "lua.h"
+#include C_HEADER_STRING
 
 #include "ldebug.h"
 #include "ldo.h"
@@ -107,7 +106,7 @@ void luaD_throw (lua_State *L, int errcode) {
       lua_unlock(L);
       G(L)->panic(L);
     }
-    exit(EXIT_FAILURE);
+    // c_exit(EXIT_FAILURE);
   }
 }
 

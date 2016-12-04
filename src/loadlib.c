@@ -9,14 +9,18 @@
 */
 
 
-#include <stdlib.h>
-#include <string.h>
-
-
 #define loadlib_c
 #define LUA_LIB
+#define LUAC_CROSS_FILE
 
 #include "lua.h"
+#include C_HEADER_STDLIB
+#include C_HEADER_STRING
+#include C_HEADER_FCNTL
+
+#ifndef LUA_CROSS_COMPILER
+#include "vfs.h"
+#endif
 
 #include "lauxlib.h"
 #include "lualib.h"
@@ -99,7 +103,7 @@ static void setprogdir (lua_State *L) {
   char *lb;
   DWORD nsize = sizeof(buff)/sizeof(char);
   DWORD n = GetModuleFileNameA(NULL, buff, nsize);
-  if (n == 0 || n == nsize || (lb = strrchr(buff, '\\')) == NULL)
+  if (n == 0 || n == nsize || (lb = c_strrchr(buff, '\\')) == NULL)
     luaL_error(L, "unable to get ModuleFileName");
   else {
     *lb = '\0';
@@ -241,7 +245,7 @@ static void ll_unloadlib (void *lib) {
 }
 
 
-static void *ll_load (lua_State *L, const char *path) {
+static void * ll_load (lua_State *L, const char *path) {
   (void)path;  /* to avoid warnings */
   lua_pushliteral(L, DLMSG);
   return NULL;
@@ -259,7 +263,7 @@ static lua_CFunction ll_sym (lua_State *L, void *lib, const char *sym) {
 
 
 
-static void **ll_register (lua_State *L, const char *path) {
+static void ** ll_register (lua_State *L, const char *path) {
   void **plib;
   lua_pushfstring(L, "%s%s", LIBPREFIX, path);
   lua_gettable(L, LUA_REGISTRYINDEX);  /* check library in registry? */
@@ -327,28 +331,34 @@ static int ll_loadlib (lua_State *L) {
 ** 'require' function
 ** =======================================================
 */
-
-
+#ifdef LUA_CROSS_COMPILER
 static int readable (const char *filename) {
-  FILE *f = fopen(filename, "r");  /* try to open file */
+  FILE *f = c_fopen(filename, "r");  /* try to open file */
   if (f == NULL) return 0;  /* open failed */
-  fclose(f);
+  c_fclose(f);
   return 1;
 }
+#else
+static int readable (const char *filename) {
+  int f = vfs_open(filename, "r");  /* try to open file */
+  if (!f) return 0;  /* open failed */
+  vfs_close(f);
+  return 1;
+}
+#endif
 
-
-static const char *pushnexttemplate (lua_State *L, const char *path) {
+static const char * pushnexttemplate (lua_State *L, const char *path) {
   const char *l;
   while (*path == *LUA_PATHSEP) path++;  /* skip separators */
   if (*path == '\0') return NULL;  /* no more templates */
-  l = strchr(path, *LUA_PATHSEP);  /* find next separator */
-  if (l == NULL) l = path + strlen(path);
+  l = c_strchr(path, *LUA_PATHSEP);  /* find next separator */
+  if (l == NULL) l = path + c_strlen(path);
   lua_pushlstring(L, path, l - path);  /* template */
   return l;
 }
 
 
-static const char *findfile (lua_State *L, const char *name,
+static const char * findfile (lua_State *L, const char *name,
                                            const char *pname) {
   const char *path;
   name = luaL_gsub(L, name, ".", LUA_DIRSEP);
@@ -382,7 +392,11 @@ static int loader_Lua (lua_State *L) {
   const char *name = luaL_checkstring(L, 1);
   filename = findfile(L, name, "path");
   if (filename == NULL) return 1;  /* library not found in this path */
+#ifdef LUA_CROSS_COMPILER
   if (luaL_loadfile(L, filename) != 0)
+#else
+  if (luaL_loadfsfile(L, filename) != 0)
+#endif
     loaderror(L, filename);
   return 1;  /* library loaded successfully */
 }
@@ -390,7 +404,7 @@ static int loader_Lua (lua_State *L) {
 
 static const char *mkfuncname (lua_State *L, const char *modname) {
   const char *funcname;
-  const char *mark = strchr(modname, *LUA_IGMARK);
+  const char *mark = c_strchr(modname, *LUA_IGMARK);
   if (mark) modname = mark + 1;
   funcname = luaL_gsub(L, modname, ".", LUA_OFSEP);
   funcname = lua_pushfstring(L, POF"%s", funcname);
@@ -415,7 +429,7 @@ static int loader_Croot (lua_State *L) {
   const char *funcname;
   const char *filename;
   const char *name = luaL_checkstring(L, 1);
-  const char *p = strchr(name, '.');
+  const char *p = c_strchr(name, '.');
   int stat;
   if (p == NULL) return 0;  /* is root */
   lua_pushlstring(L, name, p - name);
@@ -460,7 +474,7 @@ static int ll_require (lua_State *L) {
     return 1;  /* package is already loaded */
   }
   /* Is this a readonly table? */
-  void *res = luaR_findglobal(name, strlen(name));
+  void *res = luaR_findglobal(name, c_strlen(name));
   if (res) {
     lua_pushrotable(L, res);
     return 1;
@@ -538,7 +552,7 @@ static void modinit (lua_State *L, const char *modname) {
   lua_setfield(L, -2, "_M");  /* module._M = module */
   lua_pushstring(L, modname);
   lua_setfield(L, -2, "_NAME");
-  dot = strrchr(modname, '.');  /* look for last dot in module name */
+  dot = c_strrchr(modname, '.');  /* look for last dot in module name */
   if (dot == NULL) dot = modname;
   else dot++;
   /* set _PACKAGE as package name (full module name minus last part) */
@@ -549,7 +563,7 @@ static void modinit (lua_State *L, const char *modname) {
 
 static int ll_module (lua_State *L) {
   const char *modname = luaL_checkstring(L, 1);
-  if (luaR_findglobal(modname, strlen(modname)))
+  if (luaR_findglobal(modname, c_strlen(modname)))
     return 0;
   int loaded = lua_gettop(L) + 1;  /* index of _LOADED table */
   lua_getfield(L, LUA_REGISTRYINDEX, "_LOADED");
@@ -599,7 +613,7 @@ static int ll_seeall (lua_State *L) {
 
 static void setpath (lua_State *L, const char *fieldname, const char *envname,
                                    const char *def) {
-  const char *path = getenv(envname);
+  const char *path = c_getenv(envname);
   if (path == NULL)  /* no environment variable? */
     lua_pushstring(L, def);  /* use default */
   else {
@@ -632,7 +646,10 @@ static const lua_CFunction loaders[] =
   {loader_preload, loader_Lua, loader_C, loader_Croot, NULL};
 
 #if LUA_OPTIMIZE_MEMORY > 0
-const luaR_entry lmt[] = {
+#undef MIN_OPT_LEVEL
+#define MIN_OPT_LEVEL 1
+#include "lrodefs.h"
+const LUA_REG_TYPE lmt[] = {
   {LRO_STRKEY("__gc"), LRO_FUNCVAL(gctm)},
   {LRO_NILKEY, LRO_NILVAL}
 };

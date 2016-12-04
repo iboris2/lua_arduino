@@ -18,13 +18,13 @@
 ** Hence even when the load factor reaches 100%, performance remains good.
 */
 
-#include <math.h>
-#include <string.h>
-
 #define ltable_c
 #define LUA_CORE
+#define LUAC_CROSS_FILE
 
 #include "lua.h"
+#include C_HEADER_MATH
+#include C_HEADER_STRING
 
 #include "ldebug.h"
 #include "ldo.h"
@@ -86,7 +86,7 @@ static Node *hashnum (const Table *t, lua_Number n) {
   int i;
   if (luai_numeq(n, 0))  /* avoid problems with -0 */
     return gnode(t, 0);
-  memcpy(a, &n, sizeof(a));
+  c_memcpy(a, &n, sizeof(a));
   for (i = 1; i < numints; i++) a[0] += a[i];
   return hashmod(t, a[0]);
 }

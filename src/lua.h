@@ -8,10 +8,19 @@
 
 #ifndef lua_h
 #define lua_h
-
+#ifdef LUAC_CROSS_FILE
+#include "luac_cross.h"
+#endif
+#ifdef LUA_CROSS_COMPILER
 #include <stdarg.h>
 #include <stddef.h>
-
+#include <ctype.h>
+#else
+#include "c_stdarg.h"
+#include "c_stddef.h"
+#include "c_types.h"
+#include <ctype.h>
+#endif
 
 #include "luaconf.h"
 
@@ -94,6 +103,9 @@ typedef void * (*lua_Alloc) (void *ud, void *ptr, size_t osize, size_t nsize);
 #include LUA_USER_H
 #endif
 
+#if defined(LUA_OPTIMIZE_DEBUG) && LUA_OPTIMIZE_DEBUG == 0
+#undef LUA_OPTIMIZE_DEBUG
+#endif
 
 /* type of numbers in Lua */
 typedef LUA_NUMBER lua_Number;
@@ -250,7 +262,7 @@ LUA_API void lua_setallocf (lua_State *L, lua_Alloc f, void *ud);
 
 
 
-/* 
+/*
 ** ===============================================================
 ** some useful macros
 ** ===============================================================
@@ -370,7 +382,21 @@ struct lua_Debug {
 
 /* }====================================================================== */
 
+typedef struct __lua_load{
+  lua_State *L;
+  int firstline;
+  char *line;
+  int line_position;
+  size_t len;
+  int done;
+  const char *prmt;
+}lua_Load;
+
 int lua_main( int argc, char **argv );
+
+#ifndef LUA_CROSS_COMPILER
+void lua_handle_input (bool force);
+#endif
 
 /******************************************************************************
 * Copyright (C) 1994-2008 Lua.org, PUC-Rio.  All rights reserved.

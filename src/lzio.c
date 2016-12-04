@@ -5,12 +5,12 @@
 */
 
 
-#include <string.h>
-
 #define lzio_c
 #define LUA_CORE
+#define LUAC_CROSS_FILE
 
 #include "lua.h"
+#include C_HEADER_STRING
 
 #include "llimits.h"
 #include "lmem.h"
@@ -62,7 +62,7 @@ size_t luaZ_read (ZIO *z, void *b, size_t n) {
       return n;  /* return number of missing bytes */
     m = (n <= z->n) ? n : z->n;  /* min. between n and z->n */
     if (b)
-      memcpy(b, z->p, m);
+      c_memcpy(b, z->p, m);
     z->n -= m;
     z->i += m;
     z->p += m;

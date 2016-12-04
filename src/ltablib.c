@@ -5,10 +5,9 @@
 */
 
 
-#include <stddef.h>
-
 #define ltablib_c
 #define LUA_LIB
+#define LUAC_CROSS_FILE
 
 #include "lua.h"
 
@@ -267,6 +266,7 @@ static int sort (lua_State *L) {
 /* }====================================================== */
 
 
+#undef MIN_OPT_LEVEL
 #define MIN_OPT_LEVEL 1
 #include "lrodefs.h"
 const LUA_REG_TYPE tab_funcs[] = {

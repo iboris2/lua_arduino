@@ -4,12 +4,12 @@
 ** See Copyright Notice in lua.h
 */
 
-#include <string.h>
-
 #define lgc_c
 #define LUA_CORE
+#define LUAC_CROSS_FILE
 
 #include "lua.h"
+#include C_HEADER_STRING
 
 #include "ldebug.h"
 #include "ldo.h"
@@ -164,8 +164,8 @@ static int traversetable (global_State *g, Table *h) {
     markobject(g, h->metatable);
   mode = gfasttm(g, h->metatable, TM_MODE);
   if (mode && ttisstring(mode)) {  /* is there a weak mode? */
-    weakkey = (strchr(svalue(mode), 'k') != NULL);
-    weakvalue = (strchr(svalue(mode), 'v') != NULL);
+    weakkey = (c_strchr(svalue(mode), 'k') != NULL);
+    weakvalue = (c_strchr(svalue(mode), 'v') != NULL);
     if (weakkey || weakvalue) {  /* is really weak? */
       h->marked &= ~(KEYWEAK | VALUEWEAK);  /* clear bits */
       h->marked |= cast_byte((weakkey << KEYWEAKBIT) |
@@ -312,12 +312,19 @@ static l_mem propagatemark (global_State *g) {
       Proto *p = gco2p(o);
       g->gray = p->gclist;
       traverseproto(g, p);
+
       return sizeof(Proto) + sizeof(Proto *) * p->sizep +
-                             sizeof(TValue) * p->sizek + 
+                             sizeof(TValue) * p->sizek +
                              sizeof(LocVar) * p->sizelocvars +
                              sizeof(TString *) * p->sizeupvalues +
                              (proto_is_readonly(p) ? 0 : sizeof(Instruction) * p->sizecode +
+#ifdef LUA_OPTIMIZE_DEBUG
+                                                         (p->packedlineinfo ?
+                                                            c_strlen(cast(char *, p->packedlineinfo))+1 :
+                                                            0));
+#else
                                                          sizeof(int) * p->sizelineinfo);
+#endif
     }
     default: lua_assert(0); return 0;
   }
@@ -729,7 +736,7 @@ void luaC_linkupval (lua_State *L, UpVal *uv) {
   GCObject *o = obj2gco(uv);
   o->gch.next = g->rootgc;  /* link upvalue into `rootgc' list */
   g->rootgc = o;
-  if (isgray(o)) { 
+  if (isgray(o)) {
     if (g->gcstate == GCSpropagate) {
       gray2black(o);  /* closed upvalues need barrier */
       luaC_barrier(L, uv, uv->v);

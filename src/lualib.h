@@ -12,7 +12,7 @@
 
 
 /* Key to file-handle type */
-#define LUA_FILEHANDLE		"FILE*"
+#define LUA_FILEHANDLE		"INT"
 
 
 #define LUA_COLIBNAME	"coroutine"
