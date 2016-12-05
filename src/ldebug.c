@@ -348,7 +348,7 @@ LUA_API int lua_getinfo (lua_State *L, const char *what, lua_Debug *ar) {
       plight = fvalue(ci->func);
   }
   status = auxgetinfo(L, what, ar, f, plight, ci);
-  if (c_strchr(what, 'f')) {
+  if (strchr(what, 'f')) {
     if (f != NULL)
       setclvalue(L, L->top, f)
     else if (plight != NULL)
@@ -357,7 +357,7 @@ LUA_API int lua_getinfo (lua_State *L, const char *what, lua_Debug *ar) {
       setnilvalue(L->top);
     incr_top(L);
   }
-  if (c_strchr(what, 'L'))
+  if (strchr(what, 'L'))
     collectvalidlines(L, f);
   lua_unlock(L);
   return status;

@@ -4,15 +4,13 @@
 ** See Copyright Notice in lua.h
 */
 
-
 // #include "c_signal.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "user_interface.h"
 #include "platform/user_version.h"
-#include "driver/readline.h"
-#include "driver/uart.h"
+#include "uart.h"
 
 #define lua_c
 
@@ -64,16 +62,16 @@ static void print_usage (void) {
   ,
   progname);
 #if defined(LUA_USE_STDIO)
-  c_fflush(c_stderr);
+  fflush(stderr);
 #endif
 }
 #endif
 
 static void l_message (const char *pname, const char *msg) {
 #if defined(LUA_USE_STDIO)
-  if (pname) c_fprintf(c_stderr, "%s: ", pname);
-  c_fprintf(c_stderr, "%s\n", msg);
-  c_fflush(c_stderr);
+  if (pname) fprintf(stderr, "%s: ", pname);
+  fprintf(stderr, "%s\n", msg);
+  fflush(stderr);
 #else
   if (pname) luai_writestringerror("%s: ", pname);
   luai_writestringerror("%s\n", msg);
@@ -167,7 +165,7 @@ static int dofsfile (lua_State *L, const char *name) {
 #endif
 
 static int dostring (lua_State *L, const char *s, const char *name) {
-  int status = luaL_loadbuffer(L, s, c_strlen(s), name) || docall(L, 0, 1);
+  int status = luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
   return report(L, status);
 }
 
@@ -193,7 +191,7 @@ static int incomplete (lua_State *L, int status) {
     size_t lmsg;
     const char *msg = lua_tolstring(L, -1, &lmsg);
     const char *tp = msg + lmsg - (sizeof(LUA_QL("<eof>")) - 1);
-    if (c_strstr(msg, LUA_QL("<eof>")) == tp) {
+    if (strstr(msg, LUA_QL("<eof>")) == tp) {
       lua_pop(L, 1);
       return 1;
     }
@@ -209,7 +207,7 @@ static int pushline (lua_State *L, int firstline) {
   const char *prmt = get_prompt(L, firstline);
   if (lua_readline(L, b, prmt) == 0)
     return 0;  /* no input */
-  l = c_strlen(b);
+  l = strlen(b);
   if (l > 0 && b[l-1] == '\n')  /* line ends with newline? */
     b[l-1] = '\0';  /* remove it */
   if (firstline && b[0] == '=')  /* first line starts with `=' ? */
@@ -260,8 +258,8 @@ static void dotty (lua_State *L) {
   lua_settop(L, 0);  /* clear stack */
   
 #if defined(LUA_USE_STDIO)
-  c_fputs("\n", c_stdout);
-  c_fflush(c_stdout);
+  fputs("\n", stdout);
+  fflush(stdout);
 #else
   luai_writeline();
 #endif
@@ -276,7 +274,7 @@ static int handle_script (lua_State *L, char **argv, int n) {
   int narg = getargs(L, argv, n);  /* collect arguments */
   lua_setglobal(L, "arg");
   fname = argv[n];
-  if (c_strcmp(fname, "-") == 0 && c_strcmp(argv[n-1], "--") != 0) 
+  if (strcmp(fname, "-") == 0 && strcmp(argv[n-1], "--") != 0) 
     fname = NULL;  /* stdin */
   status = luaL_loadfile(L, fname);
   lua_insert(L, -(narg+1));
@@ -345,7 +343,7 @@ static int runargs (lua_State *L, char **argv, int n) {
         int memlimit=0;
         if (*limit == '\0') limit = argv[++i];
         lua_assert(limit != NULL);
-        memlimit = c_atoi(limit);
+        memlimit = atoi(limit);
         lua_gc(L, LUA_GCSETMEMLIMIT, memlimit);
         break;
       }
@@ -365,7 +363,7 @@ static int runargs (lua_State *L, char **argv, int n) {
 
 
 static int handle_luainit (lua_State *L) {
-  const char *init = c_getenv(LUA_INIT);
+  const char *init = getenv(LUA_INIT);
   if (init == NULL) return 0;  /* status OK */
   else if (init[0] == '@')
 #if 0
@@ -487,7 +485,7 @@ static void dojob(lua_Load *load){
   
   do{
     if(load->done == 1){
-      l = c_strlen(b);
+      l = strlen(b);
       if (l > 0 && b[l-1] == '\n')  /* line ends with newline? */
         b[l-1] = '\0';  /* remove it */
       if (load->firstline && b[0] == '=')  /* first line starts with `=' ? */
@@ -535,9 +533,8 @@ static void dojob(lua_Load *load){
   c_puts(load->prmt);
 }
 
-#ifndef uart_putc
-#define uart_putc uart0_putc
-#endif
+uart_t * _uart;
+
 extern bool uart_on_data_cb(const char *buf, size_t len);
 extern bool uart0_echo;
 extern bool run_input;
@@ -548,8 +545,11 @@ static bool readline(lua_Load *load){
   // NODE_DBG("readline() is called.\n");
   bool need_dojob = false;
   char ch;
-  while (uart_getc(&ch))
+  int ret;
+
+  while ((ret = uart_read_char(_uart)) >= 0)
   {
+	ch = ret;
     if(run_input)
     {
       char tmp_last_nl_char = last_nl_char;
@@ -593,7 +593,7 @@ static bool readline(lua_Load *load){
         last_nl_char = ch;
 
         load->line[load->line_position] = 0;
-        if(uart0_echo) uart_putc('\n');
+        if(uart0_echo) uart_write_char(_uart,'\n');
         uart_on_data_cb(load->line, load->line_position);
         if (load->line_position == 0)
         {
@@ -613,7 +613,7 @@ static bool readline(lua_Load *load){
       // }
       
       /* echo */
-      if(uart0_echo) uart_putc(ch);
+      if(uart0_echo) uart_write_char(_uart, ch);
 
           /* it's a large line, discard it */
       if ( load->line_position + 1 >= load->len ){

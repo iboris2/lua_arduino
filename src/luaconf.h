@@ -607,16 +607,16 @@ extern int readline4lua(const char *prompt, char *buffer, int length);
 #define LUA_NUMBER_SCAN		"%lf"
 #define LUA_NUMBER_FMT		"%.14g"
 #endif // #if defined LUA_NUMBER_INTEGRAL
-#define lua_number2str(s,n)	c_sprintf((s), LUA_NUMBER_FMT, (n))
+#define lua_number2str(s,n)	sprintf((s), LUA_NUMBER_FMT, (n))
 #define LUAI_MAXNUMBER2STR	32 /* 16 digits, sign, point, and \0 */
 #if defined LUA_NUMBER_INTEGRAL
   #if !defined LUA_INTEGRAL_LONGLONG
-  #define lua_str2number(s,p)	c_strtol((s), (p), 10)
+  #define lua_str2number(s,p)	strtol((s), (p), 10)
   #else
-  #define lua_str2number(s,p) c_strtoll((s), (p), 10)
+  #define lua_str2number(s,p) strtoll((s), (p), 10)
   #endif // #if !defined LUA_INTEGRAL_LONGLONG
 #else
-#define lua_str2number(s,p)	c_strtod((s), (p))
+#define lua_str2number(s,p)	strtod((s), (p))
 #endif // #if defined LUA_NUMBER_INTEGRAL
 
 /*
@@ -768,7 +768,7 @@ union luai_Cast { double l_d; long l_l; };
 #include <unistd.h>
 #define LUA_TMPNAMBUFSIZE	32
 #define lua_tmpnam(b,e)	{ \
-	c_strcpy(b, "/tmp/lua_XXXXXX"); \
+	strcpy(b, "/tmp/lua_XXXXXX"); \
 	e = mkstemp(b); \
 	if (e != -1) close(e); \
 	e = (e == -1); }
@@ -788,7 +788,7 @@ union luai_Cast { double l_d; long l_l; };
 */
 #if defined(LUA_USE_POPEN)
 
-#define lua_popen(L,c,m)	((void)L, c_fflush(NULL), popen(c,m))
+#define lua_popen(L,c,m)	((void)L, fflush(NULL), popen(c,m))
 #define lua_pclose(L,file)	((void)L, (pclose(file) != -1))
 
 #elif defined(LUA_WIN)

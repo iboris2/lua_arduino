@@ -43,8 +43,8 @@ static int luaB_print (lua_State *L) {
       return luaL_error(L, LUA_QL("tostring") " must return a string to "
                            LUA_QL("print"));
 #if defined(LUA_USE_STDIO)
-    if (i>1) c_fputs("\t", c_stdout);
-    c_fputs(s, c_stdout);
+    if (i>1) fputs("\t", stdout);
+    fputs(s, stdout);
 #else
     if (i>1)  luai_writestring("\t", 1);
     luai_writestring(s, c_strlen(s));
@@ -52,7 +52,7 @@ static int luaB_print (lua_State *L) {
     lua_pop(L, 1);  /* pop result */
   }
 #if defined(LUA_USE_STDIO)
-  c_fputs("\n", c_stdout);
+  fputs("\n", stdout);
 #else
   luai_writeline();
 #endif
@@ -74,7 +74,7 @@ static int luaB_tonumber (lua_State *L) {
     char *s2;
     unsigned long n;
     luaL_argcheck(L, 2 <= base && base <= 36, 2, "base out of range");
-    n = c_strtoul(s1, &s2, base);
+    n = strtoul(s1, &s2, base);
     if (s1 != s2) {  /* at least one valid digit? */
       while (isspace((unsigned char)(*s2))) s2++;  /* skip trailing spaces */
       if (*s2 == '\0') {  /* no invalid trailing characters? */
@@ -508,11 +508,11 @@ static int luaB_index(lua_State *L) {
     return fres;
 #endif  
   const char *keyname = luaL_checkstring(L, 2);
-  if (!c_strcmp(keyname, "_VERSION")) {
+  if (!strcmp(keyname, "_VERSION")) {
     lua_pushliteral(L, LUA_VERSION);
     return 1;
   }
-  void *res = luaR_findglobal(keyname, c_strlen(keyname));
+  void *res = luaR_findglobal(keyname, strlen(keyname));
   if (!res)
     return 0;
   else {
