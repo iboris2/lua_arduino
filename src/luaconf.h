@@ -327,8 +327,8 @@ extern int readline4lua(const char *prompt, char *buffer, int length);
 ** avoids including 'stdio.h' everywhere.)
 */
 #if !defined(LUA_USE_STDIO)
-#define luai_writestring(s, l)  c_puts(s)
-#define luai_writeline()        c_puts("\n")
+#define luai_writestring(s, l)  puts(s)
+#define luai_writeline()        puts("\n")
 #endif // defined(LUA_USE_STDIO)
 
 /*
@@ -336,7 +336,7 @@ extern int readline4lua(const char *prompt, char *buffer, int length);
 ** (A format string with one argument is enough for Lua...)
 */
 #if !defined(LUA_USE_STDIO)
-#define luai_writestringerror(s,p)	c_printf((s), (p))
+#define luai_writestringerror(s,p)	printf((s), (p))
 #endif // defined(LUA_USE_STDIO)
 
 

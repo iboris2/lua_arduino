@@ -9,10 +9,6 @@
 #ifndef lua_h
 #define lua_h
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifdef LUAC_CROSS_FILE
 #include "luac_cross.h"
 #endif
@@ -425,9 +421,5 @@ void lua_handle_input (bool force);
 * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ******************************************************************************/
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

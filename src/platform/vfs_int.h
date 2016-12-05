@@ -3,6 +3,7 @@
 #ifndef __VFS_INT_H__
 #define __VFS_INT_H__
 
+
 #include <string.h>
 #include <stdint.h>
 
@@ -45,7 +46,6 @@ struct vfs_file {
   int fs_type;
   const struct vfs_file_fns *fns;
 };
-typedef const struct vfs_file vfs_file;
 
 // file descriptor functions
 struct vfs_file_fns {
@@ -59,14 +59,12 @@ struct vfs_file_fns {
   uint32_t (*size)( const struct vfs_file *fd );
   int32_t (*ferrno)( const struct vfs_file *fd );
 };
-typedef const struct vfs_file_fns vfs_file_fns;
 
 // generic dir item descriptor
 struct vfs_item {
   int fs_type;
   const struct vfs_item_fns *fns;
 };
-typedef const struct vfs_item vfs_item;
 
 // directory item functions
 struct vfs_item_fns {
@@ -80,40 +78,35 @@ struct vfs_item_fns {
   int32_t (*is_sys)( const struct vfs_item *di );
   int32_t (*is_arch)( const struct vfs_item *di );
 };
-typedef const struct vfs_item_fns vfs_item_fns;
 
 // generic dir descriptor
 struct vfs_dir {
   int fs_type;
   const struct vfs_dir_fns *fns;
 };
-typedef const struct vfs_dir vfs_dir;
 
 // dir descriptor functions
 struct vfs_dir_fns {
   int32_t (*close)( const struct vfs_dir *dd );
   vfs_item *(*readdir)( const struct vfs_dir *dd );
 };
-typedef const struct vfs_dir_fns vfs_dir_fns;
 
 // generic volume descriptor
 struct vfs_vol {
   int fs_type;
   const struct vfs_vol_fns *fns;
 };
-typedef const struct vfs_vol vfs_vol;
 
 // volume functions
 struct vfs_vol_fns {
   int32_t (*umount)( const struct vfs_vol *vol );
 };
-typedef const struct vfs_vol_fns vfs_vol_fns;
 
 struct vfs_fs_fns {
-  vfs_vol  *(*mount)( const char *name, int num );
-  vfs_file *(*open)( const char *name, const char *mode );
-  vfs_dir  *(*opendir)( const char *name );
-  vfs_item *(*stat)( const char *name );
+  struct vfs_vol  *(*mount)( const char *name, int num );
+  struct vfs_file *(*open)( const char *name, const char *mode );
+  struct vfs_dir  *(*opendir)( const char *name );
+  struct vfs_item *(*stat)( const char *name );
   int32_t  (*remove)( const char *name );
   int32_t  (*rename)( const char *oldname, const char *newname );
   int32_t  (*mkdir)( const char *name );
@@ -125,12 +118,12 @@ struct vfs_fs_fns {
   int32_t  (*ferrno)( void );
   void      (*clearerr)( void );
 };
-typedef const struct vfs_fs_fns vfs_fs_fns;
 
 
-vfs_fs_fns *myspiffs_realm( const char *inname, char **outname, int set_current_drive );
-vfs_fs_fns *myfatfs_realm( const char *inname, char **outname, int set_current_drive );
+struct vfs_fs_fns *myspiffs_realm( const char *inname, char **outname, int set_current_drive );
+struct vfs_fs_fns *myfatfs_realm( const char *inname, char **outname, int set_current_drive );
 
-int32_t vfs_get_rtc( vfs_time *tm );
+int32_t vfs_get_rtc( struct vfs_time *tm );
+
 
 #endif
